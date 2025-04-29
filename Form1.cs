@@ -17,9 +17,6 @@ namespace RocketArm_3._0
             trackBar3.Scroll += TrackBar3_Scroll;
             trackBar4.Scroll += TrackBar4_Scroll;
             trackBar5.Scroll += trackBar5_Scroll;
-            trackBar1.Value = trackBar2.Value = 90;
-            trackBar3.Value = -90;
-            trackBar4.Value = -90;
             dataGridView1.Rows.Clear();
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)
