@@ -52,6 +52,7 @@ namespace RocketArm_3._0
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label6 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).BeginInit();
@@ -64,7 +65,7 @@ namespace RocketArm_3._0
             // 
             this.trackBar1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.trackBar1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.trackBar1.Location = new System.Drawing.Point(43, 60);
+            this.trackBar1.Location = new System.Drawing.Point(40, 60);
             this.trackBar1.Margin = new System.Windows.Forms.Padding(4);
             this.trackBar1.Maximum = 180;
             this.trackBar1.Name = "trackBar1";
@@ -78,7 +79,7 @@ namespace RocketArm_3._0
             // 
             this.trackBar2.BackColor = System.Drawing.Color.OrangeRed;
             this.trackBar2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.trackBar2.Location = new System.Drawing.Point(43, 185);
+            this.trackBar2.Location = new System.Drawing.Point(40, 180);
             this.trackBar2.Margin = new System.Windows.Forms.Padding(4);
             this.trackBar2.Maximum = 180;
             this.trackBar2.Name = "trackBar2";
@@ -92,7 +93,7 @@ namespace RocketArm_3._0
             // 
             this.trackBar3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.trackBar3.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.trackBar3.Location = new System.Drawing.Point(43, 321);
+            this.trackBar3.Location = new System.Drawing.Point(40, 320);
             this.trackBar3.Margin = new System.Windows.Forms.Padding(4);
             this.trackBar3.Maximum = 0;
             this.trackBar3.Minimum = -180;
@@ -107,7 +108,7 @@ namespace RocketArm_3._0
             // 
             this.trackBar4.BackColor = System.Drawing.Color.OrangeRed;
             this.trackBar4.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.trackBar4.Location = new System.Drawing.Point(43, 433);
+            this.trackBar4.Location = new System.Drawing.Point(40, 430);
             this.trackBar4.Margin = new System.Windows.Forms.Padding(4);
             this.trackBar4.Maximum = 0;
             this.trackBar4.Minimum = -180;
@@ -223,6 +224,7 @@ namespace RocketArm_3._0
             // 
             // comboBox1
             // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(1319, 59);
             this.comboBox1.Margin = new System.Windows.Forms.Padding(4);
@@ -290,6 +292,14 @@ namespace RocketArm_3._0
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // label7
+            // 
+            this.label7.Location = new System.Drawing.Point(40, 634);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(844, 48);
+            this.label7.TabIndex = 19;
+            this.label7.Text = "Errori";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -299,7 +309,8 @@ namespace RocketArm_3._0
             this.BackColor = System.Drawing.Color.GhostWhite;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1673, 671);
+            this.ClientSize = new System.Drawing.Size(1673, 727);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.button4);
@@ -362,6 +373,7 @@ namespace RocketArm_3._0
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Label label7;
     }
 }
 
