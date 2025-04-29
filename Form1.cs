@@ -2,25 +2,29 @@
 using System.Collections;
 using System.IO;
 using System.IO.Ports;
+using System.Runtime.Remoting.Lifetime;
 using System.Windows.Forms;
+
 namespace RocketArm_3._0
 {
     public partial class Form1 : Form
     {
-        public SerialPort arduinoPort;
-        public int[,] m;
-        private bool init = false;
+        public SerialPort arduinoPort;        // Oggetto per la comunicazione seriale con Arduino
+        public int[,] m;                      // Matrice per salvare i valori dei trackbar
+        private bool init = false;            // Flag per indicare se l'interfaccia è inizializzata
 
-        public Form1()
+        public Form1()   // costruttore
         {
             InitializeComponent();
 
             this.DoubleBuffered = true;
 
+            // Inizializzazione dei valori dei trackbar
             trackBar1.Value = trackBar2.Value = 90;
             trackBar3.Value = -90;
             trackBar4.Value = -90;
 
+            // Eventi associati allo scroll dei trackbar
             trackBar1.Scroll += trackBar1_Scroll_1;
             trackBar2.Scroll += TrackBar2_Scroll;
             trackBar3.Scroll += TrackBar3_Scroll;
@@ -29,15 +33,18 @@ namespace RocketArm_3._0
 
             dataGridView1.Rows.Clear();
 
+            // Aggiunta delle porte seriali disponibili alla comboBox
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)
             {
                 comboBox1.Items.Add(port);
             }
 
+            // Seleziona la prima porta se disponibile
             if (comboBox1.Items.Count > 0)
                 comboBox1.SelectedItem = comboBox1.Items[0];
 
+            // Inizializza le colonne della tabella se non presenti
             if (dataGridView1.Columns.Count == 0)
             {
                 dataGridView1.Columns.Add("Col1", "TrackBar 1");
@@ -47,41 +54,46 @@ namespace RocketArm_3._0
                 dataGridView1.Columns.Add("Col5", "TrackBar 5");
             }
 
+            // Salva i valori attuali nella prima riga della tabella
             int a1 = trackBar1.Value, a2 = trackBar2.Value, a3 = trackBar3.Value, a4 = trackBar4.Value, a5 = trackBar5.Value;
             dataGridView1.Rows.Add(a1, a2, a3, a4, a5);
 
-            m = CreateMatrix();
-
+            m = CreateMatrix();  // Crea la matrice con i dati iniziali
             init = true;
         }
 
         private void trackBar1_Scroll_1(object sender, EventArgs e)
         {
-            SendAngle("a", trackBar1.Value);
+            SendAngle("a", trackBar1.Value);  // Invia valore del trackBar1
         }
 
         private void TrackBar2_Scroll(object sender, EventArgs e)
         {
-            SendAngle("b", trackBar2.Value);
+            SendAngle("b", trackBar2.Value);  // Invia valore del trackBar2
         }
 
         private void TrackBar3_Scroll(object sender, EventArgs e)
         {
-            SendAngle("c", -trackBar3.Value);
+            SendAngle("c", -trackBar3.Value);  // Invia valore del trackBar3
         }
 
         private void TrackBar4_Scroll(object sender, EventArgs e)
         {
-            SendAngle("d", -trackBar4.Value);
+            SendAngle("d", -trackBar4.Value);  // Invia valore del trackBar4
         }
 
-        private void SendAngle(string command, int angle)   //invio dati
+        private void trackBar5_Scroll(object sender, EventArgs e)
+        {
+            SendAngle("e", -trackBar5.Value);  // Invia valore del trackBar5
+        }
+
+        private void SendAngle(string command, int angle)   // invio dati alla seriale
         {
             if (arduinoPort != null && arduinoPort.IsOpen)
             {
                 try
                 {
-                    arduinoPort.WriteLine($"{command}{angle}");
+                    arduinoPort.WriteLine($"{command}{angle}");  // Comando + angolo
                 }
                 catch (TimeoutException ex)
                 {
@@ -96,12 +108,7 @@ namespace RocketArm_3._0
                 MessageBox.Show("La porta seriale non è aperta.\nref SendAngle");
         }
 
-        private void trackBar5_Scroll(object sender, EventArgs e)
-        {
-            SendAngle("e", -trackBar5.Value);
-        }
-
-        private void button1_Click(object sender, EventArgs e)  //collegamento all'arduino
+        private void button1_Click(object sender, EventArgs e)  // collegamento all'arduino
         {
             string com = (string)comboBox1.SelectedItem;
             if (com != "")
@@ -124,7 +131,7 @@ namespace RocketArm_3._0
             }
             try
             {
-                arduinoPort.Open();
+                arduinoPort.Open();   // Apertura porta seriale
                 MessageBox.Show("connected");
             }
             catch (Exception ex)
@@ -132,6 +139,7 @@ namespace RocketArm_3._0
                 MessageBox.Show("Connection error to Arduino: " + ex.Message);
             }
 
+            // Rileva nuovamente le porte disponibili
             comboBox1.Items.Clear();
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)
@@ -140,30 +148,30 @@ namespace RocketArm_3._0
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)  //demo
+        private void button2_Click(object sender, EventArgs e)  // demo
         {
-            SendAngle("f", 0);
+            SendAngle("f", 0);   // Invia comando di demo
         }
 
-        private void button3_Click(object sender, EventArgs e)  //registra valori
+        private void button3_Click(object sender, EventArgs e)  // registra valori
         {
             int a1 = trackBar1.Value, a2 = trackBar2.Value, a3 = trackBar3.Value, a4 = trackBar4.Value, a5 = trackBar5.Value;
-            dataGridView1.Rows.Add(a1, a2, a3, a4, a5);
-            m = CreateMatrix();
+            dataGridView1.Rows.Add(a1, a2, a3, a4, a5);   // Aggiunge i valori alla tabella
+            m = CreateMatrix();   // Ricrea la matrice aggiornata
         }
 
-        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)    //invio riga scelta
+        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)  // invio riga scelta
         {
             if (init)
             {
                 IList l = dataGridView1.CurrentRow.Cells;
-                int i = 97;
+                int i = 97;  // ASCII 'a'
                 foreach (DataGridViewTextBoxCell o in l)
-                    SendAngle((char)i++ + "", (int)o.Value);
+                    SendAngle((char)i++ + "", (int)o.Value);  // Invia ogni valore della riga
             }
         }
 
-        private int[,] CreateMatrix()   //creazione 
+        private int[,] CreateMatrix()   // creazione matrice dei valori della tabella
         {
             int[,] m = new int[dataGridView1.RowCount, dataGridView1.ColumnCount];
             for (int j = 0; j < dataGridView1.RowCount; j++)
@@ -173,7 +181,7 @@ namespace RocketArm_3._0
                     int? v = (int?)row.Cells[k].Value;
                     if (v == null)
                     {
-                        dataGridView1.Rows.RemoveAt(j);
+                        dataGridView1.Rows.RemoveAt(j);  // Rimuove righe incomplete
                         break;
                     }
                     else
@@ -182,14 +190,14 @@ namespace RocketArm_3._0
             return m;
         }
 
-        private void button4_Click(object sender, EventArgs e)  //send grid
+        private void button4_Click(object sender, EventArgs e)  // send grid
         {
             for (int j = 0; j < dataGridView1.RowCount; j++)
                 for (int k = 0; k < dataGridView1.ColumnCount; k++)
-                    SendAngle((char)(k + 97) + "", m[j, k]);
+                    SendAngle((char)(k + 97) + "", m[j, k]);  // Invia l’intera matrice ad Arduino
         }
-         
-        private void timer1_Tick(object sender, EventArgs e)
+
+        private void timer1_Tick(object sender, EventArgs e)  // lettura dati da Arduino        DA RIMUOVERE PRIMA DELLA RELEASE
         {
             if (arduinoPort != null && arduinoPort.IsOpen)
                 try
@@ -197,7 +205,7 @@ namespace RocketArm_3._0
                     if (arduinoPort.BytesToRead > 0)
                     {
                         string data = arduinoPort.ReadLine();
-                        label6.Text = $"Data received: {data}";     // Optional: Display the received data  
+                        label6.Text = $"Data received: {data}";  // Mostra dati ricevuti
                     }
                 }
                 catch (Exception ex)
@@ -206,7 +214,7 @@ namespace RocketArm_3._0
                 }
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void button5_Click(object sender, EventArgs e)  // cancella righe tabella
         {
             dataGridView1.Rows.Clear();
         }
