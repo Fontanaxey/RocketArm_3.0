@@ -244,6 +244,7 @@ namespace RocketArm_3._0
             // dataGridView1
             // 
             this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(1023, 304);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
@@ -260,7 +261,7 @@ namespace RocketArm_3._0
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(127, 28);
             this.button4.TabIndex = 16;
-            this.button4.Text = "button4";
+            this.button4.Text = "Send";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
@@ -273,16 +274,15 @@ namespace RocketArm_3._0
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(1558, 200);
+            this.label6.Location = new System.Drawing.Point(1565, 204);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(44, 16);
+            this.label6.Size = new System.Drawing.Size(36, 16);
             this.label6.TabIndex = 17;
-            this.label6.Text = "label6";
-            this.label6.Click += new System.EventHandler(this.label6_Click);
+            this.label6.Text = "Data";
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(1526, 628);
+            this.button5.Location = new System.Drawing.Point(1586, 617);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(75, 23);
             this.button5.TabIndex = 18;
