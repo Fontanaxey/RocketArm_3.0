@@ -5,7 +5,6 @@ using System.IO.Ports;
 using System.Windows.Forms;
 /*
  * TODO
- *  - Aggiungere un id sessione ai log di errore
  *  - 
 */
 namespace RocketArm_3._0
@@ -15,17 +14,25 @@ namespace RocketArm_3._0
         public SerialPort arduinoPort;        // Oggetto per la comunicazione seriale con Arduino
         public int[,] m;                      // Matrice per salvare i valori dei trackbar
         private bool init = false;            // Flag per indicare se l'interfaccia è inizializzata
+        private readonly string sessionId = Guid.NewGuid().ToString();
         public Form1()   // costruttore
         {
             InitializeComponent();
+            init = false;
+            using (StreamWriter sw = new StreamWriter("log_errori.txt", append: true))
+            {       
+                
+                sw.WriteLine($"\n--- Nuova sessione: {sessionId} --- {DateTime.Now}");
+            }
 
             this.DoubleBuffered = true;
 
             // Inizializzazione dei valori dei trackbar
-            trackBar1.Value = trackBar2.Value = 90;
-            trackBar3.Value = trackBar4.Value = trackBar5.Value = -90;
+            //trackBar1.Value = trackBar2.Value = 90;
+            //trackBar3.Value = trackBar4.Value = trackBar5.Value = -90;
 
             // Eventi associati allo scroll dei trackbar
+
             trackBar1.Scroll += trackBar1_Scroll_1;
             trackBar2.Scroll += TrackBar2_Scroll;
             trackBar3.Scroll += TrackBar3_Scroll;
@@ -63,12 +70,13 @@ namespace RocketArm_3._0
             init = true;         //controllo sulla prima inizializzazione del form
         }
 
-        private void File_ER()
+        private void File_ER(String er)
         {
-            using(StreamWriter sw = new StreamWriter("log_errori.txt", append: true))
-            {
-                sw.WriteLine("ERRORE : " + label7.Text);
-            }
+                using (StreamWriter sw = new StreamWriter("log_errori.txt", append: true))
+                {
+                    sw.WriteLine($"[{DateTime.Now}] Sessione {sessionId} - ERRORE: {er}");
+                    sw.WriteLine("ERRORE : " + er);
+                }
         }
 
         private void trackBar1_Scroll_1(object sender, EventArgs e)
@@ -96,27 +104,27 @@ namespace RocketArm_3._0
             SendAngle("e", -trackBar5.Value);  // Invia valore del trackBar5
         }
 
-        private void SendAngle(string command, int angle)   // invio dati alla seriale
+        private void SendAngle(string command, int angle)
         {
-            if (arduinoPort != null && arduinoPort.IsOpen)
+            if (!init || arduinoPort == null || !arduinoPort.IsOpen)
             {
-                try
-                {
-                    arduinoPort.WriteLine($"{command}{angle}");  // Comando + angolo
-                }
-                catch (TimeoutException ex)
-                {
-                    label7.Text = "Tempo scaduto per inviare il comando: " + ex.Message;
-                    File_ER();
-                }
-                catch (IOException ex)
-                {                    label7.Text="Errore di I/O durante l'invio del comando: " + ex.Message + "\nref SendAngle";
-                    File_ER();
-                }
+                return;     // Ignora se non pronto
             }
-            else if (!init)
-                label7.Text="La porta seriale non è aperta.\nref SendAngle";
-                File_ER();
+
+            try
+            {
+                arduinoPort.WriteLine($"{command}{angle}");
+            }
+            catch (TimeoutException ex)
+            {
+                label7.Text = "Tempo scaduto per inviare il comando: " + ex.Message;
+                File_ER(ex.Message);
+            }
+            catch (IOException ex)
+            {
+                label7.Text = "Errore di I/O durante l'invio del comando: " + ex.Message + "\nref SendAngle";
+                File_ER(ex.Message);
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)  // collegamento all'arduino
@@ -138,7 +146,7 @@ namespace RocketArm_3._0
                 catch (Exception ex)
                 {
                     label7.Text=ex.Message + "\nref button1 connection";
-                    File_ER();
+                    File_ER(ex.Message);
                 }
             }
             try
@@ -149,7 +157,7 @@ namespace RocketArm_3._0
             catch (Exception ex)
             {
                 label7.Text=ex.Message + "\nref button1 connection";
-                File_ER();
+                File_ER(ex.Message);
             }
 
             // Rileva nuovamente le porte disponibili
@@ -224,7 +232,7 @@ namespace RocketArm_3._0
                 catch (Exception ex)
                 {
                     label7.Text = "Error reading from the serial port: " + ex.Message + "\nref timer1";
-                    File_ER();
+                    File_ER(ex.Message );
                 }
         }
 
