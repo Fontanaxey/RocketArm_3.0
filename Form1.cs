@@ -4,24 +4,25 @@ using System.IO;
 using System.IO.Ports;
 using System.Windows.Forms;
 /*
- * TODO
+ * TODO:
  *  - 
 */
 namespace RocketArm_3._0
 {
     public partial class Form1 : Form
     {
-        public SerialPort arduinoPort;        // Oggetto per la comunicazione seriale con Arduino
-        public int[,] m;                      // Matrice per salvare i valori dei trackbar
-        private bool init = false;            // Flag per indicare se l'interfaccia è inizializzata
+        public SerialPort arduinoPort;          // Oggetto per la comunicazione seriale con Arduino
+        public int[,] m;                            // Matrice per salvare i valori dei trackbar
+        private bool init = false;
+        int statpinza = 0;            // Flag per indicare se l'interfaccia è inizializzata
         private readonly string sessionId = Guid.NewGuid().ToString();
+        //statpinza true = open, false = chiuso
         public Form1()   // costruttore
         {
             InitializeComponent();
             init = false;
             using (StreamWriter sw = new StreamWriter("log_errori.txt", append: true))
             {       
-                
                 sw.WriteLine($"\n--- Nuova sessione: {sessionId} --- {DateTime.Now}");
             }
 
@@ -37,7 +38,7 @@ namespace RocketArm_3._0
             trackBar2.Scroll += TrackBar2_Scroll;
             trackBar3.Scroll += TrackBar3_Scroll;
             trackBar4.Scroll += TrackBar4_Scroll;
-            trackBar5.Scroll += trackBar5_Scroll;
+            trackBar6.Scroll += trackBar6_Scroll;
 
             dataGridView1.Rows.Clear();
 
@@ -60,11 +61,12 @@ namespace RocketArm_3._0
                 dataGridView1.Columns.Add("Col3", "TrackBar 3");
                 dataGridView1.Columns.Add("Col4", "TrackBar 4");
                 dataGridView1.Columns.Add("Col5", "TrackBar 5");
+                dataGridView1.Columns.Add("Col5", "Status pinza");
             }
 
             // Salva i valori attuali nella prima riga della tabella
-            int a1 = trackBar1.Value, a2 = trackBar2.Value, a3 = trackBar3.Value, a4 = trackBar4.Value, a5 = trackBar5.Value;
-            dataGridView1.Rows.Add(a1, a2, a3, a4, a5);
+            int a1 = trackBar1.Value, a2 = trackBar2.Value, a3 = trackBar3.Value, a4 = trackBar4.Value, a5 = trackBar6.Value;
+            dataGridView1.Rows.Add(a1, a2, a3, a4, a5, statpinza == 1 ? "Open" : "Closed");
 
             m = CreateMatrix();  // Crea la matrice con i dati iniziali
             init = true;         //controllo sulla prima inizializzazione del form
@@ -97,11 +99,6 @@ namespace RocketArm_3._0
         private void TrackBar4_Scroll(object sender, EventArgs e)
         {
             SendAngle("d", -trackBar4.Value);  // Invia valore del trackBar4
-        }
-
-        private void trackBar5_Scroll(object sender, EventArgs e)
-        {
-            SendAngle("e", -trackBar5.Value);  // Invia valore del trackBar5
         }
 
         private void SendAngle(string command, int angle)
@@ -145,7 +142,7 @@ namespace RocketArm_3._0
                 }
                 catch (Exception ex)
                 {
-                    label7.Text=ex.Message + "\nref button1 connection";
+                    label7.Text = ex.Message + "\nref button1 connection";
                     File_ER(ex.Message);
                 }
             }
@@ -156,7 +153,7 @@ namespace RocketArm_3._0
             }
             catch (Exception ex)
             {
-                label7.Text=ex.Message + "\nref button1 connection";
+                label7.Text = ex.Message + "\nref button1 connection";
                 File_ER(ex.Message);
             }
 
@@ -176,8 +173,8 @@ namespace RocketArm_3._0
 
         private void button3_Click(object sender, EventArgs e)  // registra valori
         {
-            int a1 = trackBar1.Value, a2 = trackBar2.Value, a3 = trackBar3.Value, a4 = trackBar4.Value, a5 = trackBar5.Value;
-            dataGridView1.Rows.Add(a1, a2, a3, a4, a5);   // Aggiunge i valori alla tabella
+            int a1 = trackBar1.Value, a2 = trackBar2.Value, a3 = trackBar3.Value, a4 = trackBar4.Value, a5 = trackBar6.Value;
+            dataGridView1.Rows.Add(a1, a2, a3, a4, a5, statpinza);   // Aggiunge i valori alla tabella
             m = CreateMatrix();   // Ricrea la matrice aggiornata
         }
 
@@ -187,8 +184,16 @@ namespace RocketArm_3._0
             {
                 IList l = dataGridView1.CurrentRow.Cells;
                 int i = 97;  // ASCII 'a'
-                foreach (DataGridViewTextBoxCell o in l)
-                    SendAngle((char)i++ + "", (int)o.Value);  // Invia ogni valore della riga
+                try
+                {
+                    foreach (DataGridViewTextBoxCell o in l)
+                        SendAngle((char)i++ + "", (int)o.Value);  // Invia ogni valore della riga
+                }
+                catch (Exception ex)
+                {
+                    label7.Text = ex.Message + "\nref grid cell enter";
+                    File_ER(ex.Message);
+                }
             }
         }
 
@@ -199,14 +204,25 @@ namespace RocketArm_3._0
                 for (int k = 0; k < dataGridView1.ColumnCount; k++)
                 {
                     DataGridViewRow row = dataGridView1.Rows[j];
-                    int? v = (int?)row.Cells[k].Value;
-                    if (v == null)
+                    int? v;
+                    if (row.Cells[k].Value is string)
                     {
-                        dataGridView1.Rows.RemoveAt(j);  // Rimuove righe incomplete
-                        break;
+                        if ((String)(row.Cells[k].Value) == "Open")
+                            v = 1;
+                        else
+                            v = 0;
                     }
                     else
-                        m[j, k] = (int)v;
+                    {
+                        v = (int?)row.Cells[k].Value;
+                        if (v == null)
+                        {
+                            dataGridView1.Rows.RemoveAt(j);  // Rimuove righe incomplete
+                            break;
+                        }
+                        else
+                            m[j, k] = (int)v;
+                    }
                 }
             return m;
         }
@@ -216,6 +232,7 @@ namespace RocketArm_3._0
             for (int j = 0; j < dataGridView1.RowCount; j++)
                 for (int k = 0; k < dataGridView1.ColumnCount; k++)
                     SendAngle((char)(k + 97) + "", m[j, k]);  // Invia l’intera matrice ad Arduino
+
         }
 
         private void timer1_Tick(object sender, EventArgs e)  // lettura dati da Arduino        DA RIMUOVERE PRIMA DELLA RELEASE
@@ -223,6 +240,8 @@ namespace RocketArm_3._0
             if (arduinoPort != null && arduinoPort.IsOpen)
                 try
                 {
+                    if (arduinoPort.IsOpen)
+                        label8.Text = "Connected " + arduinoPort.PortName;
                     if (arduinoPort.BytesToRead > 0)
                     {
                         string data = arduinoPort.ReadLine();
@@ -239,6 +258,38 @@ namespace RocketArm_3._0
         private void button5_Click(object sender, EventArgs e)  // cancella righe tabella
         {
             dataGridView1.Rows.Clear();
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            SendAngle("i", 0);
+            statpinza = 1;
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            SendAngle("j", 0);
+            statpinza = 0;
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            if (trackBar6.Visible)
+            {
+                trackBar6.Visible = false;
+                label9.Visible = false;
+            }
+            else
+            {
+                trackBar6.Visible = true;
+                label9.Visible = true;
+            }
+        }
+
+
+        private void trackBar6_Scroll(object sender, EventArgs e)
+        {
+            SendAngle("k", trackBar4.Value);
         }
     }
 }
