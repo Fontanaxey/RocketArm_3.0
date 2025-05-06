@@ -18,20 +18,25 @@ using System.Windows.Forms;
  *  f: chiudi
  *  g: demo1
  *  h: s4 (braccio2)
- *  i:
- *  l:
- *  m:
+ *  i: modalità trackbar
+ *  l: modalità grid
+ *  m: fine grid
+ *  n: TBD
  */
 namespace RocketArm_3._0
 {
     public partial class Form1 : Form
     {
         public SerialPort arduinoPort;          // Oggetto per la comunicazione seriale con Arduino
-        public int[,] m;                            // Matrice per salvare i valori dei trackbar
-        private bool init = false;
-        int statpinza = 0;            // Flag per indicare se l'interfaccia è inizializzata
+        public int[,] m;                        // Matrice per salvare i valori dei trackbar
+        private bool init = false;              // Flag per indicare se l'interfaccia è inizializzata
+        int statpinza = 0;
         private readonly string sessionId = Guid.NewGuid().ToString();
+        private bool Button_State = true;
         //statpinza true = open, false = chiuso
+        private SerialPort secondArduinoPort;
+        private bool secondPortToggle = false;  // false: invia 'a', true: invia 'b'
+
         public Form1()
         {
             InitializeComponent();
@@ -82,7 +87,7 @@ namespace RocketArm_3._0
 
             // Salva i valori attuali nella prima riga della tabella
             int a1 = trackBar1.Value, a2 = trackBar2.Value, a3 = trackBar3.Value, a4 = trackBar4.Value, a5 = trackBar6.Value;
-            dataGridView1.Rows.Add(a1, a2, a3, a4, a5, statpinza == 1 ? "Open" : "Closed");
+            dataGridView1.Rows.Add(a1, a2, a3, a4, a5, statpinza);
 
             m = CreateMatrix();  // Crea la matrice con i dati iniziali
             init = true;         //controllo sulla prima inizializzazione del form
@@ -165,7 +170,6 @@ namespace RocketArm_3._0
             try
             {
                 arduinoPort.Open();   // Apertura porta seriale
-                MessageBox.Show("connected");
             }
             catch (Exception ex)
             {
@@ -196,14 +200,15 @@ namespace RocketArm_3._0
 
         private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)  // invio riga scelta  //DA PROVARE
         {
-            if (init && 1 == 0)
+            if (init)
             {
                 IList l = dataGridView1.CurrentRow.Cells;
                 int i = 97;  // ASCII 'a'
                 try
                 {
                     foreach (DataGridViewTextBoxCell o in l)
-                        SendAngle((char)i++ + "", (int)o.Value);  // Invia ogni valore della riga
+                        if (int.TryParse(o.Value?.ToString(), out int angle))
+                            SendAngle(((char)i++).ToString(), angle);           // Invia ogni valore della riga
                 }
                 catch (Exception ex)
                 {
@@ -245,10 +250,28 @@ namespace RocketArm_3._0
 
         private void button4_Click(object sender, EventArgs e)  // send grid    //DA PROVARE
         {
+            if (!init || arduinoPort == null || !arduinoPort.IsOpen)
+            {
+                return;     // Ignora se non tutto pronto
+            }
+
             for (int j = 0; j < dataGridView1.RowCount; j++)
                 for (int k = 0; k < dataGridView1.ColumnCount; k++)
                     SendAngle((char)(k + 97) + "", m[j, k]);  // Invia l’intera matrice ad Arduino
-
+            try
+            {
+                arduinoPort.WriteLine("m");
+            }
+            catch (TimeoutException ex)
+            {
+                label7.Text = "Tempo scaduto per inviare il comando: " + ex.Message;
+                File_ER(ex.Message);
+            }
+            catch (IOException ex)
+            {
+                label7.Text = "Errore di I/O durante l'invio del comando: " + ex.Message + "\nref SendAngle";
+                File_ER(ex.Message);
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)  // lettura dati da Arduino    // DA RIMUOVERE PRIMA DELLA RELEASE  // OK
@@ -304,40 +327,60 @@ namespace RocketArm_3._0
 
         private void trackBar6_Scroll(object sender, EventArgs e)   // Braccio2 Servo4
         {
-            SendAngle("k", trackBar6.Value);
+            SendAngle("h", trackBar6.Value);
         }
 
-        private void button9_Click(object sender, EventArgs e)  //cambio mod invio
+        private void InitSecondPort()
         {
-            if (!init || arduinoPort == null || !arduinoPort.IsOpen)
+            if (arduinoPort == null || !arduinoPort.IsOpen)
             {
-                return;     // Ignora se non tutto pronto
+                label7.Text = "Errore: connettere prima il primo Arduino.";
+                File_ER("Tentativo di inizializzare seconda porta senza prima connessione.");
+                return;
             }
-            bool Button_State = true; 
+            string portName = (string)comboBox1.SelectedItem;
             try
             {
-                char a = 'z';
-                if (Button_State)
+                if (secondArduinoPort == null || !secondArduinoPort.IsOpen)
                 {
-                    arduinoPort.WriteLine(a + "");
-                    Button_State = false;
-                }
-                else
-                {
-                    arduinoPort.WriteLine('w' + "");
-                    Button_State = true;
+                    secondArduinoPort = new SerialPort
+                    {
+                        PortName = portName,
+                        BaudRate = 9600,
+                        DataBits = 8,
+                        Parity = Parity.None,
+                        StopBits = StopBits.One
+                    };
+                    secondArduinoPort.Open();
                 }
             }
-            catch (TimeoutException ex)
+            catch (Exception ex)
             {
-                label7.Text = "Tempo scaduto per inviare il comando: " + ex.Message;
-                File_ER(ex.Message);
-            }
-            catch (IOException ex)
-            {
-                label7.Text = "Errore di I/O durante l'invio del comando: " + ex.Message + "\nref SendAngle";
+                label7.Text = $"Errore secondo Arduino: {ex.Message}";
                 File_ER(ex.Message);
             }
         }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            InitSecondPort(); // Inizializza se non già fatto
+
+            if (secondArduinoPort != null && secondArduinoPort.IsOpen)
+            {
+                string comando = secondPortToggle ? "b" : "a";
+                try
+                {
+                    secondArduinoPort.WriteLine(comando);
+                    secondPortToggle = !secondPortToggle;  // Inverti per il prossimo click
+                    label7.Text = "connesso";
+                }
+                catch (Exception ex)
+                {
+                    label7.Text = $"Errore invio comando su seconda porta: {ex.Message}";
+                    File_ER(ex.Message);
+                }
+            }
+        }
+
     }
 }

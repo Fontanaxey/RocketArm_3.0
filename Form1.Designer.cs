@@ -293,9 +293,9 @@ namespace RocketArm_3._0
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(43, 318);
+            this.button6.Location = new System.Drawing.Point(43, 316);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(100, 39);
+            this.button6.Size = new System.Drawing.Size(100, 41);
             this.button6.TabIndex = 21;
             this.button6.Text = "Open";
             this.button6.UseVisualStyleBackColor = true;
@@ -342,16 +342,16 @@ namespace RocketArm_3._0
             this.trackBar6.Size = new System.Drawing.Size(844, 56);
             this.trackBar6.TabIndex = 5;
             this.trackBar6.Value = 90;
+            this.trackBar6.Visible = false;
             this.trackBar6.Scroll += new System.EventHandler(this.trackBar6_Scroll);
             // 
             // button9
             // 
-            this.button9.AutoSize = true;
-            this.button9.Location = new System.Drawing.Point(43, 505);
+            this.button9.Location = new System.Drawing.Point(43, 508);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(160, 26);
+            this.button9.Size = new System.Drawing.Size(100, 41);
             this.button9.TabIndex = 26;
-            this.button9.Text = "Switch control mode";
+            this.button9.Text = "Trapano";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
