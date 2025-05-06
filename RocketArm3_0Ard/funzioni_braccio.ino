@@ -21,7 +21,7 @@ int spostaBraccio(int posPartenza, int posFinale, int nMotore)
 }
 void spostaBraccioInParallelo() 
 {
-  int max_delta = 0;
+  int max_delta = 0, idx_max_delta = 0;
   for(int i = 0; i < 6; i++)
     if(abs(posT[i] - posA[i]) > max_delta)
     {
@@ -64,6 +64,7 @@ void spostaBraccioInParallelo()
     posA[i] = posT[i];
 }
 
+/*
 void spostaBraccioInParalleloDemo()
 {
   Servo s1, s2;
@@ -104,7 +105,7 @@ void spostaBraccioInParalleloDemo()
 
 }
 
-/*
+
 for (i = 80, j = 90; j > 15; j--, i = 100 - (j - 15) / 75.0f * 20)  // 'i' da 80 a 100
   {
     s1.write(j);
@@ -120,7 +121,8 @@ for (i = 80, j = 90; j > 15; j--, i = 100 - (j - 15) / 75.0f * 20)  // 'i' da 80
   }
 
 
-void BaseToSx() {
+void BaseToSx() 
+{
   delay(100);
   int i = 90;
   int j;
@@ -137,4 +139,5 @@ void BaseToSx() {
     SPS.write(j);
     delay(10);
   }
-}*/
+}
+*/

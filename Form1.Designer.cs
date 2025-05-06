@@ -57,6 +57,7 @@ namespace RocketArm_3._0
             this.label9 = new System.Windows.Forms.Label();
             this.button8 = new System.Windows.Forms.Button();
             this.trackBar6 = new System.Windows.Forms.TrackBar();
+            this.button9 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).BeginInit();
@@ -85,12 +86,12 @@ namespace RocketArm_3._0
             this.trackBar2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.trackBar2.Location = new System.Drawing.Point(43, 125);
             this.trackBar2.Margin = new System.Windows.Forms.Padding(4);
-            this.trackBar2.Maximum = 180;
+            this.trackBar2.Maximum = 270;
             this.trackBar2.Name = "trackBar2";
             this.trackBar2.Size = new System.Drawing.Size(844, 56);
             this.trackBar2.TabIndex = 1;
             this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar2.Value = 90;
+            this.trackBar2.Value = 135;
             this.trackBar2.Scroll += new System.EventHandler(this.TrackBar2_Scroll);
             // 
             // trackBar3
@@ -323,11 +324,12 @@ namespace RocketArm_3._0
             // 
             // button8
             // 
+            this.button8.AutoSize = true;
             this.button8.Location = new System.Drawing.Point(43, 476);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(75, 23);
+            this.button8.Size = new System.Drawing.Size(160, 26);
             this.button8.TabIndex = 25;
-            this.button8.Text = "Switch mode";
+            this.button8.Text = "Switch arm mode";
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
@@ -342,6 +344,17 @@ namespace RocketArm_3._0
             this.trackBar6.Value = 90;
             this.trackBar6.Scroll += new System.EventHandler(this.trackBar6_Scroll);
             // 
+            // button9
+            // 
+            this.button9.AutoSize = true;
+            this.button9.Location = new System.Drawing.Point(43, 505);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(160, 26);
+            this.button9.TabIndex = 26;
+            this.button9.Text = "Switch control mode";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -352,6 +365,7 @@ namespace RocketArm_3._0
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1838, 727);
+            this.Controls.Add(this.button9);
             this.Controls.Add(this.trackBar6);
             this.Controls.Add(this.button8);
             this.Controls.Add(this.label9);
@@ -424,6 +438,7 @@ namespace RocketArm_3._0
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.TrackBar trackBar6;
+        private System.Windows.Forms.Button button9;
     }
 }
 

@@ -7,6 +7,21 @@ using System.Windows.Forms;
  * TODO:
  *  - 
 */
+
+/*
+ *  Char map 
+ *  a: base
+ *  b: s1
+ *  c: s2
+ *  d: s3
+ *  e: apri
+ *  f: chiudi
+ *  g: demo1
+ *  h: s4 (braccio2)
+ *  i:
+ *  l:
+ *  m:
+ */
 namespace RocketArm_3._0
 {
     public partial class Form1 : Form
@@ -17,12 +32,13 @@ namespace RocketArm_3._0
         int statpinza = 0;            // Flag per indicare se l'interfaccia è inizializzata
         private readonly string sessionId = Guid.NewGuid().ToString();
         //statpinza true = open, false = chiuso
-        public Form1()   // costruttore
+        public Form1()
         {
             InitializeComponent();
             init = false;
+
             using (StreamWriter sw = new StreamWriter("log_errori.txt", append: true))
-            {       
+            {
                 sw.WriteLine($"\n--- Nuova sessione: {sessionId} --- {DateTime.Now}");
             }
 
@@ -61,7 +77,7 @@ namespace RocketArm_3._0
                 dataGridView1.Columns.Add("Col3", "TrackBar 3");
                 dataGridView1.Columns.Add("Col4", "TrackBar 4");
                 dataGridView1.Columns.Add("Col5", "TrackBar 5");
-                dataGridView1.Columns.Add("Col5", "Status pinza");
+                dataGridView1.Columns.Add("Col6", "Status pinza");
             }
 
             // Salva i valori attuali nella prima riga della tabella
@@ -72,13 +88,13 @@ namespace RocketArm_3._0
             init = true;         //controllo sulla prima inizializzazione del form
         }
 
-        private void File_ER(String er)
+        private void File_ER(String er) //Controllo errori  // OK
         {
-                using (StreamWriter sw = new StreamWriter("log_errori.txt", append: true))
-                {
-                    sw.WriteLine($"[{DateTime.Now}] Sessione {sessionId} - ERRORE: {er}");
-                    sw.WriteLine("ERRORE : " + er);
-                }
+            using (StreamWriter sw = new StreamWriter("log_errori.txt", append: true))
+            {
+                sw.WriteLine($"[{DateTime.Now}] Sessione {sessionId} - ERRORE: {er}");
+                sw.WriteLine("ERRORE : " + er);
+            }
         }
 
         private void trackBar1_Scroll_1(object sender, EventArgs e)
@@ -101,7 +117,7 @@ namespace RocketArm_3._0
             SendAngle("d", -trackBar4.Value);  // Invia valore del trackBar4
         }
 
-        private void SendAngle(string command, int angle)
+        private void SendAngle(string command, int angle)   //Manda input   // OK
         {
             if (!init || arduinoPort == null || !arduinoPort.IsOpen)
             {
@@ -124,7 +140,7 @@ namespace RocketArm_3._0
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)  // collegamento all'arduino
+        private void button1_Click(object sender, EventArgs e)  // collegamento all'arduino // OK
         {
             string com = (string)comboBox1.SelectedItem;
             if (com != "")
@@ -168,19 +184,19 @@ namespace RocketArm_3._0
 
         private void button2_Click(object sender, EventArgs e)  // demo
         {
-            SendAngle("f", 0);   // Invia comando di demo
+            SendAngle("g", 0);   // Invia comando di demo
         }
 
-        private void button3_Click(object sender, EventArgs e)  // registra valori
+        private void button3_Click(object sender, EventArgs e)  // registra valori  // OK
         {
             int a1 = trackBar1.Value, a2 = trackBar2.Value, a3 = trackBar3.Value, a4 = trackBar4.Value, a5 = trackBar6.Value;
             dataGridView1.Rows.Add(a1, a2, a3, a4, a5, statpinza);   // Aggiunge i valori alla tabella
             m = CreateMatrix();   // Ricrea la matrice aggiornata
         }
 
-        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)  // invio riga scelta
+        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)  // invio riga scelta  //DA PROVARE
         {
-            if (init)
+            if (init && 1 == 0)
             {
                 IList l = dataGridView1.CurrentRow.Cells;
                 int i = 97;  // ASCII 'a'
@@ -197,7 +213,7 @@ namespace RocketArm_3._0
             }
         }
 
-        private int[,] CreateMatrix()   // creazione matrice dei valori della tabella
+        private int[,] CreateMatrix()   // creazione matrice dei valori della tabella   // OK
         {
             int[,] m = new int[dataGridView1.RowCount, dataGridView1.ColumnCount];
             for (int j = 0; j < dataGridView1.RowCount; j++)
@@ -227,7 +243,7 @@ namespace RocketArm_3._0
             return m;
         }
 
-        private void button4_Click(object sender, EventArgs e)  // send grid
+        private void button4_Click(object sender, EventArgs e)  // send grid    //DA PROVARE
         {
             for (int j = 0; j < dataGridView1.RowCount; j++)
                 for (int k = 0; k < dataGridView1.ColumnCount; k++)
@@ -235,9 +251,9 @@ namespace RocketArm_3._0
 
         }
 
-        private void timer1_Tick(object sender, EventArgs e)  // lettura dati da Arduino        DA RIMUOVERE PRIMA DELLA RELEASE
+        private void timer1_Tick(object sender, EventArgs e)  // lettura dati da Arduino    // DA RIMUOVERE PRIMA DELLA RELEASE  // OK
         {
-            if (arduinoPort != null && arduinoPort.IsOpen)
+            if (arduinoPort != null && arduinoPort.IsOpen && 1 == 0)
                 try
                 {
                     if (arduinoPort.IsOpen)
@@ -251,28 +267,28 @@ namespace RocketArm_3._0
                 catch (Exception ex)
                 {
                     label7.Text = "Error reading from the serial port: " + ex.Message + "\nref timer1";
-                    File_ER(ex.Message );
+                    File_ER(ex.Message);
                 }
         }
 
-        private void button5_Click(object sender, EventArgs e)  // cancella righe tabella
+        private void button5_Click(object sender, EventArgs e)  // cancella righe tabella   // OK
         {
             dataGridView1.Rows.Clear();
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        private void button6_Click(object sender, EventArgs e)  // pinza    // OK
         {
-            SendAngle("i", 0);
+            SendAngle("e", 0);
             statpinza = 1;
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        private void button7_Click(object sender, EventArgs e)  // pinza    // OK
         {
-            SendAngle("j", 0);
+            SendAngle("f", 0);
             statpinza = 0;
         }
 
-        private void button8_Click(object sender, EventArgs e)
+        private void button8_Click(object sender, EventArgs e)  // show trackbar braccio2   // OK
         {
             if (trackBar6.Visible)
             {
@@ -286,10 +302,42 @@ namespace RocketArm_3._0
             }
         }
 
-
-        private void trackBar6_Scroll(object sender, EventArgs e)
+        private void trackBar6_Scroll(object sender, EventArgs e)   // Braccio2 Servo4
         {
-            SendAngle("k", trackBar4.Value);
+            SendAngle("k", trackBar6.Value);
+        }
+
+        private void button9_Click(object sender, EventArgs e)  //cambio mod invio
+        {
+            if (!init || arduinoPort == null || !arduinoPort.IsOpen)
+            {
+                return;     // Ignora se non tutto pronto
+            }
+            bool Button_State = true; 
+            try
+            {
+                char a = 'z';
+                if (Button_State)
+                {
+                    arduinoPort.WriteLine(a + "");
+                    Button_State = false;
+                }
+                else
+                {
+                    arduinoPort.WriteLine('w' + "");
+                    Button_State = true;
+                }
+            }
+            catch (TimeoutException ex)
+            {
+                label7.Text = "Tempo scaduto per inviare il comando: " + ex.Message;
+                File_ER(ex.Message);
+            }
+            catch (IOException ex)
+            {
+                label7.Text = "Errore di I/O durante l'invio del comando: " + ex.Message + "\nref SendAngle";
+                File_ER(ex.Message);
+            }
         }
     }
 }

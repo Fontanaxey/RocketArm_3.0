@@ -9,6 +9,7 @@ int posA[5]{ 90, 135, 90, 90, 90 }, posT[5]{};
 #define TRIG_PIN 9
 #define ECHO_PIN 10
 String command = "";
+
 /*
 base:     0 - 180,  pin: 4
 servo 1:  0 - 270,  pin: 5
@@ -17,6 +18,7 @@ servo 3:  0 - 180,  pin: 7
 pinza:    90 - 130, pin: 8
      (chiusa - aperta)
 */
+
 void setup()
 {
   Serial.begin(9600);
@@ -32,7 +34,7 @@ void setup()
 
 /*
   TODO:
-    - chiudi pinza da gestire meglio
+    - 
 */
 
 void loop()
@@ -42,12 +44,12 @@ void loop()
 
 void readcmd()
 {
-  if(serial.avaiable())
+  if(Serial.available())
   {
-    byte mode = Serial.read();
-    if(mode == 200)
+    char mode = Serial.read();
+    if(mode == 'z')
       trackbarscroll();
-    else if(mode == 201)
+    else if(mode == 'w')
       processGrid();
   }
 }
@@ -58,8 +60,8 @@ void processGrid()
   {
     for(int i = 0; i < 5; i++)
     {
-      cmd = Serial.read();
-      cmdInt = Serial.parseInt();
+      char cmd = Serial.read();
+      int cmdInt = Serial.parseInt();
       posT[cmd - 97] = cmdInt;
     }
     spostaBraccioInParallelo();
@@ -113,7 +115,7 @@ void demo1()
   apripinza();
   posT[BASE] = 45;
   posT[S1] = 200;
-  posT[S2] = 145;
+  posT[S2] = 0;
   posT[S3] = 25;
   spostaBraccioInParallelo();
   chiudipinza();
@@ -123,7 +125,8 @@ void trackbarscroll()
 {
     while (Serial.available() > 5)
       Serial.readStringUntil('\n');
-    cmd = Serial.readStringUntil('\n');
+    String cmd = Serial.readStringUntil('\n');
+    Serial.print(cmd);
     if (cmd.length())
     {
       char s = cmd.charAt(0);
@@ -163,6 +166,9 @@ void trackbarscroll()
         break;
         case 'f':
           chiudipinza();
+        break;
+        case 'g':
+          demo1();
         break;
       }
     }
